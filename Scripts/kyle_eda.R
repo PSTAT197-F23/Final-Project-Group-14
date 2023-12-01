@@ -11,7 +11,7 @@ attack_distribution_binomial <- network_data |>
   geom_bar(aes(x = attack, y = count, fill = attack), stat = "identity")
 
 
-duration_distribution <- summary(network_data$duration)
+attackduration_distribution <- summary(network_data$duration)
 
 protocoltype_distribution <- network_data |>
   select(protocoltype) |>
@@ -30,7 +30,10 @@ class_distribution <- donor_data |>
   ggplot() + 
   geom_bar(aes(x = class, y = count, fill = class), stat = "identity")
 
-network_intrusion_data <- read_csv("Data/UNSW_NB15_training-set.csv") |>
-  mutate(attack_cat = if_else(attack_cat == "Normal", "Normal", "Attack"))
+network_intrusion_data_read <- read_csv("Data/UNSW_NB15_training-set.csv") 
+
+network_intrusion_data <- network_intrusion_data_read |>
+  mutate(attack_cat = if_else(attack_cat == "Normal", "Normal", "Attack")) |>
+  summarise(n(), .by = attack_cat)
 
 nsw_attack_distribution
