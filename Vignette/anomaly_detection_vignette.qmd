@@ -14,38 +14,40 @@ execute:
   cache: true
 ---
 
-```{r}
-# load any other packages and read data here
-library(tidyverse)
-library(gt)
-library(gtExtras)
-```
-
 ## Executive summary
 
-As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection requires training data and falls into 3 broad training procedures. Those 3 are supervised learning, unsupservised learning, and semi-supervised learning.
-
-
-Methods: Isolation Forest, Local Outlier Factor
-## Data description
-
-The data was obtained by surveying all students in the Data Science Capstone Prep course for Fall 2023 at the University of California, Santa Barbara. A form was sent out to students and all were asked to fill out information about themselves. Thus, the data is sourced from students accepted into the capstone program and who took the survey and consented to having their information shared.
-
-The raw data consisted of two separate tables, one on student interests and the other on backgrounds. After merging, we had 48 observations to work with. Information spans self-reported subject proficiency in programming, math, and statistics, number of pertinent upper division course taken, research experience and interests, specific courses taken, and career domain interests.
+As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models.
 
 ## Methods of interest
 
-In this vignette, we will demonstrate the efficacy of a number of different models and their consequent ability to identify outliers p.that may be present at the mil
-In this project, we sought to further understand the relationships between previous coursework, preferred coding language, strength of programming skills, and interest in research. Specifically, our analysis aimed to answer three questions:
+In this vignette, we will demonstrate the efficacy of a number of different models and their consequent ability to identify outliers that may be present in the data.
 
 > 1.  Isolation Forests
-> 2.  Local Outlier Facts
-> 3.  K
+> 2.  Local Outlier Factors
+> 3.  One class SVM
+
+
+## Data description
+
+The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image. 
+
+Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.
 
 ## Procedure
 
+**Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below**
+
+
+### Isolation Forests
+
+### Local Outlier
+
+### One Class SVM
+
 ## Additional Resources: 
-[5 Anomaly Detection Algorithms to Know](https://builtin.com/machine-learning/anomaly-detection-algorithms)
-[Deep Anomaly Detection with Deviation Networks](https://arxiv.org/pdf/1911.08623.pdf)
-[Anomaly Detection in R (DataCamo)](https://rpubs.com/michaelmallari/anomaly-detection-r)
-[Differences Between Classification and Anomaly Detection](https://rpubs.com/michaelmallari/anomaly-detection-r)
+
+- [5 Anomaly Detection Algorithms to Know](https://builtin.com/machine-learning/anomaly-detection-algorithms)
+- [Deep Anomaly Detection with Deviation Networks](https://arxiv.org/pdf/1911.08623.pdf)
+- [Anomaly Detection in R (DataCamp)](https://rpubs.com/michaelmallari/anomaly-detection-r)
+- [Differences Between Classification and Anomaly Detection](https://rpubs.com/michaelmallari/anomaly-detection-r)
+- [One Class SVM](https://www.r-bloggers.com/2023/03/one-class-svm/)

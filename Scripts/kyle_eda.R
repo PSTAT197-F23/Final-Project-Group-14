@@ -1,4 +1,6 @@
 library(tidyverse)
+library(visdat)
+library(corrplot)
 
 bc_data_headers <- c('id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimeter_mean',
                       'area_mean', 'smoothness_mean', 'compactness_mean', 'concavity_mean',
@@ -11,3 +13,21 @@ bc_data_headers <- c('id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimete
                       'symmetry_worst', 'fractal_dimension_worst')
 
 bc_data <- read_csv("Data/breast+cancer+wisconsin+diagnostic/wdbc.data", col_names = bc_data_headers)
+
+
+class_counts <- bc_data |>
+  summarise(n(), .by = diagnosis)
+
+class_dist_plot <- bc_data |>
+  summarise(count = n(), .by = diagnosis) |>
+  mutate(diagnosis = recode(diagnosis, "M" = "Malignant", "B" = "Benign")) |>
+  ggplot(aes(x = diagnosis, y = count, fill = diagnosis)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Breast Cancer Diagnosis Distribution", x = "Diagnosis", y = "Count", fill = "Diagnosis")
+
+na_value_visual <- vis_miss(bc_data) # No missing data according to this
+
+data_heatmap <- bc_data |>
+  select(-diagnosis) |>
+  cor() |>
+  corrplot()

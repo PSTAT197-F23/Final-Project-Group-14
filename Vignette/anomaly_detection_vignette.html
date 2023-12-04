@@ -77,29 +77,46 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="executive-summary" class="level2">
 <h2 class="anchored" data-anchor-id="executive-summary">Executive summary</h2>
-<p>This report presents an analysis of data collected from a survey conducted on students enrolled in the Data Science Capstone Prep course at the University of California, Santa Barbara. The survey explores students’ coursework histories, their self-assessed proficiency levels, comfort levels, research experience/desire and main areas of interests. Question 1 aims to identify the students programming language preference based on certain factors. Interestingly, students either prefer python or have no preference at all, with R not having that much excitement. The second question seeks out the relationship between coursework history and comfort/proficiency levels. Findings reveal that students tend to be more comfortable with programming and statistics over math, reflecting the curriculum focus of UCSB PSTAT courses. Additionally, the third question in the report uncovers variations in domain preferences between students with and without research experience. Overall, this analysis offers valuable insights into the relationships between all of the survey questions answered by aspiring young data scientists.</p>
-<p>Outlier and anomaly detection are methods inmachine learning aimed at</p>
-<p>Methods: Isolation Forest, Local Outlier Factor ## Data description</p>
-<p>The data was obtained by surveying all students in the Data Science Capstone Prep course for Fall 2023 at the University of California, Santa Barbara. A form was sent out to students and all were asked to fill out information about themselves. Thus, the data is sourced from students accepted into the capstone program and who took the survey and consented to having their information shared.</p>
-<p>The raw data consisted of two separate tables, one on student interests and the other on backgrounds. After merging, we had 48 observations to work with. Information spans self-reported subject proficiency in programming, math, and statistics, number of pertinent upper division course taken, research experience and interests, specific courses taken, and career domain interests.</p>
+<p>As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models.</p>
 </section>
-<section id="questions-of-interest" class="level2">
-<h2 class="anchored" data-anchor-id="questions-of-interest">Questions of interest</h2>
-<p>In this project, we sought to further understand the relationships between previous coursework, preferred coding language, strength of programming skills, and interest in research. Specifically, our analysis aimed to answer three questions:</p>
+<section id="methods-of-interest" class="level2">
+<h2 class="anchored" data-anchor-id="methods-of-interest">Methods of interest</h2>
+<p>In this vignette, we will demonstrate the efficacy of a number of different models and their consequent ability to identify outliers that may be present in the data.</p>
 <blockquote class="blockquote">
 <ol type="1">
-<li>What factors (research vs.&nbsp;industry, classes taken, proficiency, research experience) affect which coding language you prefer?</li>
-<li>Do the classes you take affect your comfort/proficiency and in programming?</li>
-<li>Are there some domains that are more popular for research? Why might that be?</li>
+<li>Isolation Forests</li>
+<li>Local Outlier Factors</li>
+<li>One class SVM</li>
 </ol>
 </blockquote>
 </section>
-<section id="findings" class="level2">
-<h2 class="anchored" data-anchor-id="findings">Findings</h2>
+<section id="data-description" class="level2">
+<h2 class="anchored" data-anchor-id="data-description">Data description</h2>
+<p>The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.</p>
+<p>Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.</p>
+</section>
+<section id="procedure" class="level2">
+<h2 class="anchored" data-anchor-id="procedure">Procedure</h2>
+<p><strong>Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below</strong></p>
+<section id="isolation-forests" class="level3">
+<h3 class="anchored" data-anchor-id="isolation-forests">Isolation Forests</h3>
+</section>
+<section id="local-outlier" class="level3">
+<h3 class="anchored" data-anchor-id="local-outlier">Local Outlier</h3>
+</section>
+<section id="one-class-svm" class="level3">
+<h3 class="anchored" data-anchor-id="one-class-svm">One Class SVM</h3>
+</section>
 </section>
 <section id="additional-resources" class="level2">
 <h2 class="anchored" data-anchor-id="additional-resources">Additional Resources:</h2>
-<p><a href="https://builtin.com/machine-learning/anomaly-detection-algorithms">5 Anomaly Detection Algorithms to Know</a></p>
+<ul>
+<li><a href="https://builtin.com/machine-learning/anomaly-detection-algorithms">5 Anomaly Detection Algorithms to Know</a></li>
+<li><a href="https://arxiv.org/pdf/1911.08623.pdf">Deep Anomaly Detection with Deviation Networks</a></li>
+<li><a href="https://rpubs.com/michaelmallari/anomaly-detection-r">Anomaly Detection in R (DataCamp)</a></li>
+<li><a href="https://rpubs.com/michaelmallari/anomaly-detection-r">Differences Between Classification and Anomaly Detection</a></li>
+<li><a href="https://www.r-bloggers.com/2023/03/one-class-svm/">One Class SVM</a></li>
+</ul>
 </section>
 
 </main>
