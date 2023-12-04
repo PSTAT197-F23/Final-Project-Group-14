@@ -14,6 +14,8 @@ bc_data_headers <- c('id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimete
 
 bc_data <- read_csv("Data/breast+cancer+wisconsin+diagnostic/wdbc.data", col_names = bc_data_headers)
 
+write_csv(bc_data, "Data/bc_data_prepared.csv")
+
 
 class_counts <- bc_data |>
   summarise(n(), .by = diagnosis)
