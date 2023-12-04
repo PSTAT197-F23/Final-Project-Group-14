@@ -22,7 +22,7 @@ In this vignette, we will demonstrate the efficacy of a number of different mode
 > 3.  One class SVM
 
 ## Dataset
-Our dataset was downlaoded from [here.](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
+Our dataset was downloaded from the [UC Irvine Machine Learning Repository.](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
 
 ## References:
 
