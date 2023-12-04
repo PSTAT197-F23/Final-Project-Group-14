@@ -15,7 +15,7 @@ This repository includes a vignette demonstrating the implementation of a number
 
 ## Methods of interest
 
-In this vignette, we will demonstrate the efficacy of a number of different models and their consequent ability to identify outliers that may be present in the data.
+In this vignette, we will demonstrate the efficacy of a number of different models and their consequent ability to identify outliers that may be present in the data. In particular, our models of interest are:
 
 > 1.  Isolation Forests
 > 2.  Local Outlier Factors
