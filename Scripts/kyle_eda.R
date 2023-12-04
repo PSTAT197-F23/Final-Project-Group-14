@@ -1,39 +1,13 @@
 library(tidyverse)
 
-network_data <- read_csv("Data/network_data_file_columns_named.csv")
+bc_data_headers <- c('id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimeter_mean',
+                      'area_mean', 'smoothness_mean', 'compactness_mean', 'concavity_mean',
+                      'concave points_mean', 'symmetry_mean', 'fractal_dimension_mean',
+                      'radius_se', 'texture_se', 'perimeter_se', 'area_se', 'smoothness_se',
+                      'compactness_se', 'concavity_se', 'concave points_se', 'symmetry_se',
+                      'fractal_dimension_se', 'radius_worst', 'texture_worst',
+                      'perimeter_worst', 'area_worst', 'smoothness_worst',
+                      'compactness_worst', 'concavity_worst', 'concave points_worst',
+                      'symmetry_worst', 'fractal_dimension_worst')
 
-attack_distribution_binomial <- network_data |>
-  select(attack) |> 
-  mutate(attack = as_factor(attack),
-         attack = if_else(attack == "normal", "normal", "attack")) |>
-  summarise(count = n(), .by = attack) |>
-  ggplot() +
-  geom_bar(aes(x = attack, y = count, fill = attack), stat = "identity")
-
-
-attackduration_distribution <- summary(network_data$duration)
-
-protocoltype_distribution <- network_data |>
-  select(protocoltype) |>
-  mutate(protocoltype = as_factor(protocoltype)) |>
-  summarise(count = n(), .by = protocoltype) |>
-  ggplot() +
-  geom_bar(aes(x = protocoltype, y = count, fill = protocoltype), stat = "identity")
-
-
-
-donor_data <- read_csv("Data/KDD2014_donors_10feat_nomissing_normalised.csv")
-
-class_distribution <- donor_data |>
-  mutate(class = as_factor(class)) |>
-  summarise(count = n(), .by = class) |>
-  ggplot() + 
-  geom_bar(aes(x = class, y = count, fill = class), stat = "identity")
-
-network_intrusion_data_read <- read_csv("Data/UNSW_NB15_training-set.csv") 
-
-network_intrusion_data <- network_intrusion_data_read |>
-  mutate(attack_cat = if_else(attack_cat == "Normal", "Normal", "Attack")) |>
-  summarise(n(), .by = attack_cat)
-
-nsw_attack_distribution
+bc_data <- read_csv("Data/breast+cancer+wisconsin+diagnostic/wdbc.data", col_names = bc_data_headers)
