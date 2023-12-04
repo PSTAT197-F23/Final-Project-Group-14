@@ -63,3 +63,4 @@ going through process of implementation...
 - [Anomaly Detection in R (DataCamp)](https://rpubs.com/michaelmallari/anomaly-detection-r)
 - [Differences Between Classification and Anomaly Detection](https://rpubs.com/michaelmallari/anomaly-detection-r)
 - [One Class SVM](https://www.r-bloggers.com/2023/03/one-class-svm/)
+- [One Class Classification Using Support Vector Machines](https://www.analyticsvidhya.com/blog/2022/06/one-class-classification-using-support-vector-machines/)
