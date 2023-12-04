@@ -39,10 +39,22 @@ Observations in the data set are classified into 2 categories, benign or maligna
 
 
 ### Isolation Forests
+Isolation forests work by...
+
+going through process of implementation...
+
 
 ### Local Outlier
+Isolation forests work by...
+
+going through process of implementation...
+
 
 ### One Class SVM
+Isolation forests work by...
+
+going through process of implementation...
+
 
 ## Additional Resources: 
 
