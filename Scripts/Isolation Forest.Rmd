@@ -1,13 +1,14 @@
 ---
 title: "Isolation Forest"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2023-12-10"
 ---
-#isolation forest theory and explanation
-Isolation Forests are a distinctive method for anomaly detection, based on the principle of isolating anomalies rather than identifying normal data patterns. The model constructs a 'forest' of random binary decision trees. The theory behind an Isolation Forest that each anomaly is easy to separate out from the rest of the sample and therefore can be isolated. Each tree isolates data points by randomly selecting a feature and a split value. The key metric in this approach is the path length—the number of splits needed to isolate a data point. The algorithm then recursively generates partitions on the sample by randomly selecting an attribute and then randomly selecting a split value between the minimum and maximum values allowed for that attribute. Isolation Forest uses randomly selected attribute and randomly selected split point. The anomaly score is invertedly associated with the path-length as anomalies need fewer splits to be isolated, due to the fact that they are few and different.
+# isolation forest theory and explanation
+Isolation Forests represent a novel approach in anomaly detection, focusing on isolating anomalies instead of identifying normal data patterns. The method constructs a 'forest' of random binary decision trees, based on the principle that anomalies are easier to isolate from the rest of the sample. In an Isolation Forest, each tree aims to isolate data points by randomly selecting a feature and a split value, with the path length—the number of splits needed to isolate a data point—being the key metric. Anomalies, being few and distinct, typically require fewer splits for isolation, which is reflected in their inverse relationship with the anomaly score. For constructing these trees, given a dataset \(X = \{x_1, \dots, x_n\}\) where each \(x_i\) is a point in a \(d\)-dimensional space, a subset \(X' \subset X\) is used. The trees are built by recursively partitioning \(X'\) through random selection of an attribute \(q\) and a split value \(p\), resulting in a binary tree where each internal node represents a division based on \(q < p\). This process continues until a node either contains a single instance or all instances at the node are identical, effectively leveraging the trees's capacity to progressively narrow down the space in which data points reside, making it highly effective for identifying anomalies that are rare and distinct.
 
-The binary decision trees are constructed as follows: given a dataset $X = \{x_1, \dots, x_n\}$, where each $x_i$ is a point in a $d$-dimensional space, a subset $X' \subset X$ is considered. The tree construction involves recursively partitioning $X'$ by randomly selecting an attribute $q$ and a split value $p$. This creates a binary tree where each internal node represents a division based on the condition $q < p$. The recursion proceeds until it reaches a termination condition: either the node contains a single instance or all instances at the node are identical. The unique aspect of iTrees is their ability to isolate data points by progressively narrowing down the space in which they reside, making them particularly effective for identifying anomalies, which are data points that are few and different.
-
+# Code
 
 ```{r}
 #install.packages("isotree")
@@ -15,35 +16,49 @@ library(isotree)
 data <- read.csv("/users/Navneet/Documents/GitHub/vignette-anomaly-detection/Data/bc_data_prepared.csv")
 ```
 
+
 ```{r, warning=FALSE}
-data <- data[,-c(1, 2)]
-set.seed(1234)
+# Split the data set into benign and malignant
+benign_data <- subset(data, diagnosis == 'B')
+malignant_data <- subset(data, diagnosis == 'M')
 
-#perform the isolation mforest
-model <- isolation.forest(data, ntrees=100)
-scores <- predict(model, data)
+# Remove the 'diagnosis' column for modeling
+benign_data <- benign_data[,-which(names(benign_data) == "diagnosis")]
+malignant_data <- malignant_data[,-which(names(malignant_data) == "diagnosis")]
 
-#typically 0.5 is considered the threashold for outliers
-outliers <- scores > 0.5
-num_outliers <- sum(outliers)
+# Train the model on benign data
+set.seed(123) 
+model <- isolation.forest(benign_data, ntrees=100)
 
+# Apply the model to malignant data]
+malignant_scores <- predict(model, malignant_data)
 
-# Count of non-outliers
-num_non_outliers <- length(scores) - num_outliers
-print(paste("Number of non-outliers:", num_non_outliers))
+# Determine outliers
+outliers <- malignant_scores > 0.5
 
-#count outliers
-print(paste("the number of outliers", num_outliers))
+# Calculate the accuracy
+true_positive <- sum(outliers) 
+false_negative <- length(outliers) - true_positive
+
+# Accuracy
+accuracy <- true_positive / length(outliers)
+
+# Print the results
+print(paste("Number of true positives (malignant identified as outliers):", true_positive))
+print(paste("Number of false negatives (malignant not identified as outliers):", false_negative))
+print(paste("Accuracy:", accuracy))
 ```
+
+The output from the isolation forest model indicates that it has correctly identified 180 malignant cases as outliers, which are referred to as true positives. This suggests that the model is effectively distinguishing between benign and malignant cases based on the patterns learned from the benign data it was trained on. However, the model has also yielded 32 false negatives, which are malignant cases that the model failed to flag as outliers. Overall, the model has achieved an accuracy of approximately 84.91%, which quantifies its ability to correctly identify malignant cases as outliers. 
 
 ```{r}
 library(ggplot2)
 
 # Convert scores to a data frame for ggplot
-scores_df <- data.frame(score = scores)
+scores_df <- data.frame(score = malignant_scores)
 
 # Plot
-ggplot(scores_df, aes(x = seq_along(score), y = score)) +
+ggplot(scores_df, aes(x = seq_along(score), y = malignant_scores)) +
   geom_point() +
   geom_hline(yintercept = 0.5, linetype = "dashed", color = "red") +
   theme_minimal() +
@@ -57,13 +72,13 @@ library(ggplot2)
 library(RColorBrewer)
 
 # Perform PCA on the data
-pca_result <- prcomp(data, scale = TRUE)
+pca_result <- prcomp(malignant_data[,-c(1, 2)], scale = TRUE)
 
 # Get the first two principal components and add anomaly scores
-pca_data <- data.frame(PC1 = pca_result$x[, 1], PC2 = pca_result$x[, 2], Score = scores)
+pca_data <- data.frame(PC1 = pca_result$x[, 1], PC2 = pca_result$x[, 2], Score = malignant_scores)
 
 # Creating the scatter plot
-ggplot(pca_data, aes(x = PC1, y = PC2, color = Score)) +
+ggplot(pca_data, aes(x = PC1, y = PC2, color = malignant_scores)) +
   geom_point(alpha = 0.7) +
   scale_color_gradientn(colors = brewer.pal(9, "Reds")) +
   theme_minimal() +
@@ -72,3 +87,5 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = Score)) +
        y = "Principal Component 2")
 
 ```
+
+
