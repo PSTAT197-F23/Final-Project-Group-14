@@ -10,7 +10,7 @@ code-copy: true
 execute:
   message: false
   warning: false
-  echo: false
+  echo: true
   cache: true
 ---
 
@@ -50,7 +50,7 @@ going through process of implementation...
 
 ### One Class SVM
 
-#### Libraires
+#### Libraries
 
 ```{r}
 library(tinytex)
@@ -68,7 +68,8 @@ library(tm)
 We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.
 
 ```{r}
-breast_cancer_data <- read.csv("C:/Users/azpee/OneDrive/PSTAT_197A/vignette-anomaly-detection/Data/bc_data_prepared.csv")
+setwd("~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection")
+breast_cancer_data <- read_csv("Data/bc_data_prepared.csv")
 
 # let's first relabe our interest class into 1s and 0s
 
@@ -159,7 +160,7 @@ Step 3.) Evaluate the process
 
 We will be using the e1071 package to implement the one class SVM kernel.
 
-The following chunk simply creates out variable of interest, diagnosis into a binary column. Then it partitions the data into the majority class and the testing set consisting of the Malignant class. We then build our model with default parameters.
+The following chunk simply creates our variable of interest, diagnosis into a binary column. Then it partitions the data into the majority class and the testing set consisting of the Malignant class. We then build our model with default parameters.
 
 ```{r}
 

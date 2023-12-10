@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Kyle Wu,">
-<meta name="dcterms.date" content="2023-12-04">
+<meta name="author" content="Kyle Wu, Azfal Peermohammed">
+<meta name="dcterms.date" content="2023-12-09">
 
 <title>Applications of Anomaly and Outlier Detection</title>
 <style>
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -36,6 +70,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="anomaly_detection_vignette_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="anomaly_detection_vignette_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -58,14 +94,14 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Kyle Wu, </p>
+             <p>Kyle Wu, Azfal Peermohammed </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 4, 2023</p>
+      <p class="date">December 9, 2023</p>
     </div>
   </div>
   
@@ -100,12 +136,201 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below</strong></p>
 <section id="isolation-forests" class="level3">
 <h3 class="anchored" data-anchor-id="isolation-forests">Isolation Forests</h3>
+<p>Isolation forests work by…</p>
+<p>going through process of implementation…</p>
 </section>
 <section id="local-outlier" class="level3">
 <h3 class="anchored" data-anchor-id="local-outlier">Local Outlier</h3>
+<p>Isolation forests work by…</p>
+<p>going through process of implementation…</p>
 </section>
 <section id="one-class-svm" class="level3">
 <h3 class="anchored" data-anchor-id="one-class-svm">One Class SVM</h3>
+<section id="libraries" class="level4">
+<h4 class="anchored" data-anchor-id="libraries">Libraries</h4>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-1_fdf03fae12d87f097f72fd1647d5803e">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytex)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NLP)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="pca-for-visualization" class="level4">
+<h4 class="anchored" data-anchor-id="pca-for-visualization">PCA For Visualization</h4>
+<p>We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-2_3d13a8b5efdcb108178b7ace7389ce9b">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Data/bc_data_prepared.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># let's first relabe our interest class into 1s and 0s</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diagnosis =</span> <span class="fu">ifelse</span>(diagnosis <span class="sc">==</span> <span class="st">'B'</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Separate predictors and response variable</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> breast_cancer_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(breast_cancer_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> breast_cancer_data<span class="sc">$</span>diagnosis</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>pca_result <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first two principal components</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>pca_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pca_result<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>pca_data<span class="sc">$</span>diagnosis <span class="ot">&lt;-</span> <span class="fu">factor</span>(y, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"B"</span>))               </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using the first two principal components</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_data, <span class="fu">aes</span>(<span class="at">x =</span> PC2, <span class="at">y =</span> PC1, <span class="at">color =</span> diagnosis)) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)) <span class="sc">+</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"PCA Scatterplot of Breast Cancer Data"</span>, <span class="at">x =</span> <span class="st">"Principal Component 1"</span>, <span class="at">y =</span> <span class="st">"Principal Component 2"</span>) <span class="sc">+</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can clearly see that the two groups should be able to be classified with unsupervised learning methods. Our first method will be one class SVM.</p>
+<p>The method of One Class Support Vector Machines tries to find the optimal boundary which separates normal data points from their abnormal counterparts by finding the high dimensional hypersphere which can surround the distribution of high density points. Once we have our trained hypersphere, then points within the hypershere will get classified as 1 or being a “normal data point” while points that are classified as outside the circle will get classified as -1 or as an outlier.</p>
+</section>
+<section id="mathematical-formulation" class="level4">
+<h4 class="anchored" data-anchor-id="mathematical-formulation">Mathematical Formulation</h4>
+<p>Remember that our main goal is finding the hypershpere which serparates our data from outliers the best. The algorithm can be formed as an optimization problem making the algorithm something we like to call a turn key algorithm. This means we do not have to play with a lot of parameters to find this boundary. Our goal is to minimize the volume of the hypershpere. This makes intuitive sense as we want to minimize how many outliers actually go within our circle. This results in a binary function function which captures regions in the input space where the probability density of the data lives.</p>
+<p>In order to find the smallest hypersphere our goal is to find a sphere with radius r and center c which consists of most data points. We can write this mathematically as</p>
+<p><span class="math display">\[
+min_{r,c} \text{ } r^2 \\\text{subject to, } \left\| \phi (x_{i}) - c \right\|^2 \le r^2  \\\forall i = 1,2,…,n
+\]</span></p>
+<p>The above formulation is a little to restrictive, meaning that it is extremely sensitive to outliers. The problem can be then optimized to the form below which is much more flexible.</p>
+<p><span class="math display">\[
+min_{r,c,\zeta} \text{ } r^2 + \frac{1}{vn} \sum_{i=1}^{n} \zeta_i \\\text{subject to, } \left\|\phi(x_i)-c\right\|^2 \le r^2 + \zeta_i \\\forall i = 1,2,…,n
+\]</span></p>
+</section>
+<section id="implementation" class="level4">
+<h4 class="anchored" data-anchor-id="implementation">Implementation</h4>
+<p>We will now begin with the implementation of our One Class SVM. Remember that our outliers are the Malignant Tumors. With the typical SVM model, we define something called a kernel. Basically what is occurring is that we project our data onto an n-dimensional space and find a linear boundary. This boundary will be a soft margin that allows for some slack. We then take our data back to the original dimension where the decision boundary will be non-linear. The above formulation is equivalent when using a Gaussian (radial) kernel. The proof is not included here, but a reference to both papers will be included below. The RBF kernel projects our data onto a higher space using the equation</p>
+<p><span class="math display">\[
+e^{(-\gamma\left|  u-v\right|^2)}
+\]</span></p>
+<p>Then we optimize to find the optimal margin for a linear boundary. The optimization problem is different than above but note that RBF will result to a equivalent solution. In order to prove this analytically we run a two class SVM on our PCA data to show how we can get a hypersphere with the RBF kernel. Below we train a svm model on our entire training data to see the result of our boundary.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-3_449c6e98031674755b37144b6154216c">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>svm_model_PCA <span class="ot">&lt;-</span> <span class="fu">svm</span>(diagnosis <span class="sc">~</span> ., <span class="at">data =</span> pca_data,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kernel =</span> <span class="st">'radial'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svm_model_PCA, pca_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!<br>
+<br>
+</p>
+<hr>
+</section>
+<section id="outline" class="level4">
+<h4 class="anchored" data-anchor-id="outline">Outline</h4>
+<p>Step 1.) Train our model on the majority class (Benign Tumors)</p>
+<p>Step 2.) Predict on the entire training set</p>
+<p>Step 3.) Evaluate the process</p>
+</section>
+<section id="training-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="training-the-model">Training The Model</h4>
+<p>We will be using the e1071 package to implement the one class SVM kernel.</p>
+<p>The following chunk simply creates our variable of interest, diagnosis into a binary column. Then it partitions the data into the majority class and the testing set consisting of the Malignant class. We then build our model with default parameters.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-4_ef83d7cda61261dfaf8bcef7f4ce32a1">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>testing_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>trainpredictors <span class="ot">&lt;-</span> training_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(training_data) <span class="sc">==</span><span class="st">"diagnosis"</span>)]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>testpredictors <span class="ot">&lt;-</span> testing_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(testing_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>svm.model <span class="ot">&lt;-</span> <span class="fu">svm</span>(trainpredictors, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">type =</span> <span class="st">'one-classification'</span>, </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nu =</span> <span class="fl">0.10</span>, <span class="at">scale =</span> <span class="cn">TRUE</span>, <span class="at">kernel =</span> <span class="st">"radial"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svm.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+svm.default(x = trainpredictors, y = NULL, scale = TRUE, type = "one-classification", 
+    kernel = "radial", nu = 0.1)
+
+
+Parameters:
+   SVM-Type:  one-classification 
+ SVM-Kernel:  radial 
+      gamma:  0.03225806 
+         nu:  0.1 
+
+Number of Support Vectors:  59
+
+
+
+
+Number of Classes: 1</code></pre>
+</div>
+</div>
+<p>We see that the number of support vectors is 59. These are the vectors that are highly influential with creating our margin of separation.</p>
+<p>Run the code below to predict and build confusion matrices. We will also see the accuracy of each training and test set.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-5_f55cf4f7986b5e547093bd42346face3">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>svm.predtrain <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, trainpredictors)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>svm.predtest <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, testpredictors)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>confTrain <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtrain, <span class="at">Reference =</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                     training_data<span class="sc">$</span>diagnosis)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>confTest <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtest, <span class="at">Reference =</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                    testing_data<span class="sc">$</span>diagnosis)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Training Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Confusion Matrix for Training Set:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Reference
+Predicted   1
+    FALSE  38
+    TRUE  319</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Testing Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Confusion Matrix for Testing Set:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Reference
+Predicted   0
+    FALSE 198
+    TRUE   14</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>accuracy_train <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtrain <span class="sc">==</span> training_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(training_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>accuracy_test <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtest <span class="sc">==</span> testing_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(testing_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Training Set: "</span>, accuracy_train, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Accuracy on Training Set:  89.35574 %</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Testing Set: "</span>, accuracy_test, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Accuracy on Testing Set:  93.39623 %</code></pre>
+</div>
+</div>
+<p>The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!</p>
+</section>
 </section>
 </section>
 <section id="additional-resources" class="level2">
@@ -116,6 +341,7 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="https://rpubs.com/michaelmallari/anomaly-detection-r">Anomaly Detection in R (DataCamp)</a></li>
 <li><a href="https://rpubs.com/michaelmallari/anomaly-detection-r">Differences Between Classification and Anomaly Detection</a></li>
 <li><a href="https://www.r-bloggers.com/2023/03/one-class-svm/">One Class SVM</a></li>
+<li><a href="https://www.analyticsvidhya.com/blog/2022/06/one-class-classification-using-support-vector-machines/">One Class Classification Using Support Vector Machines</a></li>
 </ul>
 </section>
 
