@@ -1,0 +1,74 @@
+---
+title: "Isolation Forest"
+output: html_document
+date: "2023-12-10"
+---
+#isolation forest theory and explanation
+Isolation Forests are a distinctive method for anomaly detection, based on the principle of isolating anomalies rather than identifying normal data patterns. The model constructs a 'forest' of random binary decision trees. The theory behind an Isolation Forest that each anomaly is easy to separate out from the rest of the sample and therefore can be isolated. Each tree isolates data points by randomly selecting a feature and a split value. The key metric in this approach is the path length—the number of splits needed to isolate a data point. The algorithm then recursively generates partitions on the sample by randomly selecting an attribute and then randomly selecting a split value between the minimum and maximum values allowed for that attribute. Isolation Forest uses randomly selected attribute and randomly selected split point. The anomaly score is invertedly associated with the path-length as anomalies need fewer splits to be isolated, due to the fact that they are few and different.
+
+The binary decision trees are constructed as follows: given a dataset $X = \{x_1, \dots, x_n\}$, where each $x_i$ is a point in a $d$-dimensional space, a subset $X' \subset X$ is considered. The tree construction involves recursively partitioning $X'$ by randomly selecting an attribute $q$ and a split value $p$. This creates a binary tree where each internal node represents a division based on the condition $q < p$. The recursion proceeds until it reaches a termination condition: either the node contains a single instance or all instances at the node are identical. The unique aspect of iTrees is their ability to isolate data points by progressively narrowing down the space in which they reside, making them particularly effective for identifying anomalies, which are data points that are few and different.
+
+
+```{r}
+#install.packages("isotree")
+library(isotree)
+data <- read.csv("/users/Navneet/Documents/GitHub/vignette-anomaly-detection/Data/bc_data_prepared.csv")
+```
+
+```{r, warning=FALSE}
+data <- data[,-c(1, 2)]
+set.seed(1234)
+
+#perform the isolation mforest
+model <- isolation.forest(data, ntrees=100)
+scores <- predict(model, data)
+
+#typically 0.5 is considered the threashold for outliers
+outliers <- scores > 0.5
+num_outliers <- sum(outliers)
+
+
+# Count of non-outliers
+num_non_outliers <- length(scores) - num_outliers
+print(paste("Number of non-outliers:", num_non_outliers))
+
+#count outliers
+print(paste("the number of outliers", num_outliers))
+```
+
+```{r}
+library(ggplot2)
+
+# Convert scores to a data frame for ggplot
+scores_df <- data.frame(score = scores)
+
+# Plot
+ggplot(scores_df, aes(x = seq_along(score), y = score)) +
+  geom_point() +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(title = "Anomaly Scores with Threshold",
+       x = "Data Point",
+       y = "Anomaly Score")
+```
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+
+# Perform PCA on the data
+pca_result <- prcomp(data, scale = TRUE)
+
+# Get the first two principal components and add anomaly scores
+pca_data <- data.frame(PC1 = pca_result$x[, 1], PC2 = pca_result$x[, 2], Score = scores)
+
+# Creating the scatter plot
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Score)) +
+  geom_point(alpha = 0.7) +
+  scale_color_gradientn(colors = brewer.pal(9, "Reds")) +
+  theme_minimal() +
+  labs(title = "PCA Scatter Plot with Anomaly Scores",
+       x = "Principal Component 1",
+       y = "Principal Component 2")
+
+```
