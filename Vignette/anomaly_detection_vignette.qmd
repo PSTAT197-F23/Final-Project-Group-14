@@ -96,7 +96,6 @@ dim(bc_data_prepared)
 ```{r}
 #Tibble
 bc_data_prepared %>% tibble()
-
 ```
 
 The first step to take is to create a dataframe of the patient ID and the `actual` diagnosis. This will be concatenated with the predicted diagnosis values later to determine the prediction quality of the model:
