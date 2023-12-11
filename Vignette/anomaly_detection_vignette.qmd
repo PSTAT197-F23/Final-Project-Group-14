@@ -1,7 +1,7 @@
 ---
 title: "Applications of Anomaly and Outlier Detection"
 subtitle: "Unveiling the Unusual: A Data Odyssey into Anomaly Detection and Outlier Exploration"
-author: "Kyle Wu, Azfal Peermohammed"
+author: "Kyle Wu, Azfal Peermohammed, Ryan Sevilla, "
 date: last-modified
 published-title: "Updated"
 editor: visual
@@ -13,6 +13,13 @@ execute:
   echo: true
   cache: true
 ---
+
+```{r}
+# Load in required libraries
+library(ggplot2)
+library(dplyr)
+library(corrplot)
+```
 
 ## Executive summary
 
@@ -30,7 +37,28 @@ In this vignette, we will demonstrate the efficacy of a number of different mode
 
 The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.
 
+```{r}
+# Count plot of each diagnosis class
+bc_count <- breast_cancer_data %>%
+  mutate(diagnosis = factor(ifelse(diagnosis == "M", "Malignant", "Benign"))) %>%
+  ggplot(aes(x = diagnosis)) +
+  geom_bar() +
+  labs(x = "Diagnosis",
+       y = "Number of Patients",
+       title = "Breast Cancer Diagnosis Distribution")
+bc_count
+```
+
 Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.
+
+Though there are 30 numeric features in total, only ten unique features are computed from each cell nucleus: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. The mean, standard error, and lowest value for each of the ten unique features are recorded.
+
+```{r}
+# Variable correlation matrix of numeric features
+corrplot(corr = cor(breast_cancer_data[-c(1,2)]))
+```
+
+Most features tend to have positive correlations with one another, typically ranging from negligible to moderate. Of the unique features, radius, perimeter, and area tend to have very high positive correlations with each other, which makes sense because the radius is used to calculate the perimeter and area. Concavity and concave points also share a very high positive correlation with each other, which makes sense because concave points is similar to concavity but measures the number of concavities instead of the magnitude. The concave points feature also has a high positive correlation with radius, perimeter, and area, and compactness has a high positive correlation with concavity and concave points. Both smoothness and fractal dimension have the most notable cases of negative correlations, seen with radius, perimeter, and area in both cases, though the negative correlations are low at best.
 
 ## Procedure
 
@@ -126,7 +154,7 @@ $$
 min_{r,c,\zeta} \text{ } r^2 + \frac{1}{vn} \sum_{i=1}^{n} \zeta_i \\\text{subject to, } \left\|\phi(x_i)-c\right\|^2 \le r^2 + \zeta_i \\\forall i = 1,2,…,n
 $$
 
-#### Implementation 
+#### Implementation
 
 We will now begin with the implementation of our One Class SVM. Remember that our outliers are the Malignant Tumors. With the typical SVM model, we define something called a kernel. Basically what is occurring is that we project our data onto an n-dimensional space and find a linear boundary. This boundary will be a soft margin that allows for some slack. We then take our data back to the original dimension where the decision boundary will be non-linear. The above formulation is equivalent when using a Gaussian (radial) kernel. The proof is not included here, but a reference to both papers will be included below. The RBF kernel projects our data onto a higher space using the equation
 
