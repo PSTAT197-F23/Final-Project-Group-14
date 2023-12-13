@@ -233,7 +233,6 @@ actual_id_diagnosis %>%
 
 Look at the outputted table. What do you notice?
 
-<<<<<<< HEAD
 =======
 ### One Class SVM
 
@@ -250,6 +249,7 @@ library(tm)
 
 ```
 
+<<<<<<< HEAD
 #### PCA For Visualization
 
 We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.
