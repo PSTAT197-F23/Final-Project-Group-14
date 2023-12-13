@@ -19,7 +19,14 @@ execute:
 library(ggplot2)
 library(dplyr)
 library(corrplot)
+library(tidyverse)
 ```
+
+```{r}
+setwd("~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection/Data")
+breast_cancer_data <- read_csv("bc_data_prepared.csv")
+```
+
 
 ## Executive summary
 
@@ -50,7 +57,7 @@ bc_count <- breast_cancer_data %>%
        title = "Breast Cancer Diagnosis Distribution")
 bc_count
 ```
->>>>>>> upstream/main
+
 
 Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.
 
@@ -74,10 +81,9 @@ Most features tend to have positive correlations with one another, typically ran
 ```{r}
 #install.packages("isotree")
 library(isotree)
-data <- read.csv("/users/Navneet/Documents/GitHub/vignette-anomaly-detection/Data/bc_data_prepared.csv")
 # Split the data set into benign and malignant
-benign_data <- subset(data, diagnosis == 'B')
-malignant_data <- subset(data, diagnosis == 'M')
+benign_data <- subset(breast_cancer_data, diagnosis == 'B')
+malignant_data <- subset(breast_cancer_data, diagnosis == 'M')
 
 # Remove the 'diagnosis' column for modeling
 benign_data <- benign_data[,-which(names(benign_data) == "diagnosis")]
@@ -161,33 +167,30 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = malignant_scores)) +
 
 =======
 ### Local Outlier
->>>>>>> upstream/main
 
 Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.
 
 To begin implementation, it is ideal to install the `dbscan` package which will be used to calculate the LOF value:
 
 ```{r}
-install.packages("dbscan", dependencies = FALSE)
 library(dbscan)
 ```
 
 It is also nice to look at the dimensions and a tibble of our dataset so we are familiar with it:
 
 ```{r}
-#Dimensions
-dim(bc_data_prepared)
+dim(breast_cancer_data)
 ```
 
 ```{r}
 #Tibble
-bc_data_prepared %>% tibble()
+breast_cancer_data %>% tibble()
 ```
 
 The first step to take is to create a dataframe of the patient ID and the `actual` diagnosis. This will be concatenated with the predicted diagnosis values later to determine the prediction quality of the model:
 
 ```{r}
-actual_id_diagnosis <- bc_data_prepared[,c(1,2)]
+actual_id_diagnosis <- breast_cancer_data[,c(1,2)]
 
 ```
 
@@ -195,7 +198,7 @@ The function `lof` saves a lot of time for us and allows us to quickly produce l
 
 ```{r}
 #Make data set as a dataframe without character variable for scaling
-scaled_bc_data <- as.data.frame(scale(bc_data_prepared[,-c(1,2)]))
+scaled_bc_data <- as.data.frame(scale(breast_cancer_data[,-c(1,2)]))
 #Use LOF function on the 569 observations to produce ratio of density around that specific observation vs average density of all point around it.
 lof_result <- lof(scaled_bc_data)
 # Adjust the threshold as needed
@@ -255,9 +258,6 @@ library(tm)
 We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.
 
 ```{r}
-setwd("~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection")
-breast_cancer_data <- read_csv("Data/bc_data_prepared.csv")
-
 # let's first relabe our interest class into 1s and 0s
 
 breast_cancer_data <- breast_cancer_data %>%
@@ -397,7 +397,7 @@ cat("Accuracy on Testing Set: ", accuracy_test, "%\n")
 
 The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!
 
->>>>>>> upstream/main
+
 ## Additional Resources:
 
 -   [5 Anomaly Detection Algorithms to Know](https://builtin.com/machine-learning/anomaly-detection-algorithms)
