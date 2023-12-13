@@ -1,7 +1,7 @@
 ---
 title: "Applications of Anomaly and Outlier Detection"
 subtitle: "Unveiling the Unusual: A Data Odyssey into Anomaly Detection and Outlier Exploration"
-author: "Kyle Wu, Azfal Peermohammed, Ryan Sevilla, "
+author: "Kyle Wu, Azfal Peermohammed, Ryan Sevilla, Jimmy Dysart "
 date: last-modified
 published-title: "Updated"
 editor: visual
@@ -36,6 +36,8 @@ In this vignette, we will demonstrate the efficacy of a number of different mode
 ## Data description
 
 The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.
+<<<<<<< HEAD
+=======
 
 ```{r}
 # Count plot of each diagnosis class
@@ -48,6 +50,7 @@ bc_count <- breast_cancer_data %>%
        title = "Breast Cancer Diagnosis Distribution")
 bc_count
 ```
+>>>>>>> upstream/main
 
 Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.
 
@@ -156,12 +159,81 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = malignant_scores)) +
 > 
 
 
+=======
 ### Local Outlier
+>>>>>>> upstream/main
 
-Isolation forests work by...
+Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.
 
-going through process of implementation...
+To begin implementation, it is ideal to install the `dbscan` package which will be used to calculate the LOF value:
 
+```{r}
+install.packages("dbscan", dependencies = FALSE)
+library(dbscan)
+```
+
+It is also nice to look at the dimensions and a tibble of our dataset so we are familiar with it:
+
+```{r}
+#Dimensions
+dim(bc_data_prepared)
+```
+
+```{r}
+#Tibble
+bc_data_prepared %>% tibble()
+```
+
+The first step to take is to create a dataframe of the patient ID and the `actual` diagnosis. This will be concatenated with the predicted diagnosis values later to determine the prediction quality of the model:
+
+```{r}
+actual_id_diagnosis <- bc_data_prepared[,c(1,2)]
+
+```
+
+The function `lof` saves a lot of time for us and allows us to quickly produce lof values for all 569 observations. Follow the code below to reproduce the LOF model:
+
+```{r}
+#Make data set as a dataframe without character variable for scaling
+scaled_bc_data <- as.data.frame(scale(bc_data_prepared[,-c(1,2)]))
+#Use LOF function on the 569 observations to produce ratio of density around that specific observation vs average density of all point around it.
+lof_result <- lof(scaled_bc_data)
+# Adjust the threshold as needed
+threshold <- 1.25
+#Create an object that displayed logical values for whether or not the predicted LOF value is greater than or less than the threshold parameter
+outliers <- lof_result > threshold
+
+```
+
+Run the code below to display a plot of the outliers flagged by the LOF model.
+
+Try and mess around with the `threshold` value using the code above.(hint: The LOF value is a ratio between the average density around a given point and the average density of the points around it!) Use the plot below to visualize the changes:
+
+```{r}
+#Visualize Outliers
+plot(lof_result, pch = 19, col = ifelse(outliers, "red", "blue"), 
+     main = "LOF Outlier Detection", xlab = "Data Point", ylab = "LOF Score")
+legend("topright", legend = c("Outlier", "Inlier"), col = c("red", "blue"), 
+       pch = 19)
+```
+
+Talk with your classmates: How does increasing and decreasing the threshold value change the number of outliers?
+
+Use the code below to append the predicted outliers to a DataFrame of the actual outliers:
+
+```{r}
+#Append the outlier results to the actual diagnosis of the data set
+actual_id_diagnosis$pred_diag <- outliers
+
+#Prediction vs Actual Table
+actual_id_diagnosis %>%
+  select(diagnosis, pred_diag) %>%
+  table()
+```
+
+Look at the outputted table. What do you notice?
+
+=======
 ### One Class SVM
 
 #### Libraries
@@ -177,6 +249,7 @@ library(tm)
 
 ```
 
+<<<<<<< HEAD
 #### PCA For Visualization
 
 We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.
@@ -324,6 +397,7 @@ cat("Accuracy on Testing Set: ", accuracy_test, "%\n")
 
 The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!
 
+>>>>>>> upstream/main
 ## Additional Resources:
 
 -   [5 Anomaly Detection Algorithms to Know](https://builtin.com/machine-learning/anomaly-detection-algorithms)
