@@ -278,7 +278,7 @@ ggplot(pca_data, aes(x = PC2, y = PC1, color = diagnosis)) +
   theme_minimal()
 ```
 
-We can clearly see that the two groups should be able to be classified with unsupervised learning methods. Our first method will be one class SVM.
+We can clearly see that the two groups should be able to be classified with unsupervised learning methods. In this case, we will use one-class SVM.
 
 The method of One Class Support Vector Machines tries to find the optimal boundary which separates normal data points from their abnormal counterparts by finding the high dimensional hypersphere which can surround the distribution of high density points. Once we have our trained hypersphere, then points within the hypershere will get classified as 1 or being a "normal data point" while points that are classified as outside the circle will get classified as -1 or as an outlier.
 
@@ -292,7 +292,7 @@ $$
 min_{r,c} \text{ } r^2 \\\text{subject to, } \left\| \phi (x_{i}) - c \right\|^2 \le r^2  \\\forall i = 1,2,…,n
 $$
 
-The above formulation is a little to restrictive, meaning that it is extremely sensitive to outliers. The problem can be then optimized to the form below which is much more flexible.
+The above formulation is a little too restrictive, meaning that it is extremely sensitive to outliers. The problem can be then optimized to the form below which is much more flexible.
 
 $$
 min_{r,c,\zeta} \text{ } r^2 + \frac{1}{vn} \sum_{i=1}^{n} \zeta_i \\\text{subject to, } \left\|\phi(x_i)-c\right\|^2 \le r^2 + \zeta_i \\\forall i = 1,2,…,n
@@ -300,13 +300,13 @@ $$
 
 #### Implementation
 
-We will now begin with the implementation of our One Class SVM. Remember that our outliers are the Malignant Tumors. With the typical SVM model, we define something called a kernel. Basically what is occurring is that we project our data onto an n-dimensional space and find a linear boundary. This boundary will be a soft margin that allows for some slack. We then take our data back to the original dimension where the decision boundary will be non-linear. The above formulation is equivalent when using a Gaussian (radial) kernel. The proof is not included here, but a reference to both papers will be included below. The RBF kernel projects our data onto a higher space using the equation
+We will now begin with the implementation of our One Class SVM. Remember that our outliers are the Malignant Tumors. With the typical SVM model, we define something called a kernel. Basically, we project our data onto an n-dimensional space and find a linear boundary. This boundary will be a soft margin that allows for some slack. We then return our data to the original dimension where the decision boundary will be non-linear. The above formulation is equivalent when using a Gaussian (radial) kernel. The proof is not included here, but a reference to both papers will be included below. The RBF kernel projects our data onto a higher space using the equation:
 
 $$
 e^{(-\gamma\left|  u-v\right|^2)}
 $$
 
-Then we optimize to find the optimal margin for a linear boundary. The optimization problem is different than above but note that RBF will result to a equivalent solution. In order to prove this analytically we run a two class SVM on our PCA data to show how we can get a hypersphere with the RBF kernel. Below we train a svm model on our entire training data to see the result of our boundary.
+Then we optimize to find the optimal margin for a linear boundary. The optimization problem is different than above but note that RBF will result in an equivalent solution. In order to prove this analytically we run a two class SVM on our PCA data to show how we can get a hypersphere with the RBF kernel. Below we train a svm model on our entire training data to see the result of our boundary.
 
 ```{r}
 svm_model_PCA <- svm(diagnosis ~ ., data = pca_data,
@@ -315,8 +315,8 @@ svm_model_PCA <- svm(diagnosis ~ ., data = pca_data,
 plot(svm_model_PCA, pca_data)
 ```
 
-We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!\
-\
+We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!
+
 
 #### Outline
 
