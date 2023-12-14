@@ -16,3 +16,7 @@ lattice
 caret
 NLP
 tm
+corrplot
+isotree
+RColorBrewer
+dbscan

@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Kyle Wu, Azfal Peermohammed">
-<meta name="dcterms.date" content="2023-12-09">
+<meta name="author" content="Kyle Wu, Azfal Peermohammed, Ryan Sevilla, Jimmy Dysart">
+<meta name="dcterms.date" content="2023-12-13">
 
 <title>Applications of Anomaly and Outlier Detection</title>
 <style>
@@ -94,14 +94,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Kyle Wu, Azfal Peermohammed </p>
+             <p>Kyle Wu, Azfal Peermohammed, Ryan Sevilla, Jimmy Dysart </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 9, 2023</p>
+      <p class="date">December 13, 2023</p>
     </div>
   </div>
   
@@ -111,6 +111,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-1_6a6e36faf1604186d1fd6b317eadf21c">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load in required libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-2_53cc36201a4d0c1a27838f62ce46bab6">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection/Data"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"bc_data_prepared.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <section id="executive-summary" class="level2">
 <h2 class="anchored" data-anchor-id="executive-summary">Executive summary</h2>
 <p>As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models.</p>
@@ -128,78 +139,279 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-description" class="level2">
 <h2 class="anchored" data-anchor-id="data-description">Data description</h2>
-<p>The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.</p>
+<p>The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image. &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD =======</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-3_975b2311fe4cd40ec1ee0efb4917b897">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count plot of each diagnosis class</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bc_count <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diagnosis =</span> <span class="fu">factor</span>(<span class="fu">ifelse</span>(diagnosis <span class="sc">==</span> <span class="st">"M"</span>, <span class="st">"Malignant"</span>, <span class="st">"Benign"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> diagnosis)) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Diagnosis"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Patients"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Breast Cancer Diagnosis Distribution"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>bc_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<p>upstream/main</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 <p>Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.</p>
+<p>Though there are 30 numeric features in total, only ten unique features are computed from each cell nucleus: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. The mean, standard error, and lowest value for each of the ten unique features are recorded.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-4_35b7ab2f93c211254c369a3a74b92e08">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variable correlation matrix of numeric features</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(<span class="at">corr =</span> <span class="fu">cor</span>(breast_cancer_data[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Most features tend to have positive correlations with one another, typically ranging from negligible to moderate. Of the unique features, radius, perimeter, and area tend to have very high positive correlations with each other, which makes sense because the radius is used to calculate the perimeter and area. Concavity and concave points also share a very high positive correlation with each other, which makes sense because concave points is similar to concavity but measures the number of concavities instead of the magnitude. The concave points feature also has a high positive correlation with radius, perimeter, and area, and compactness has a high positive correlation with concavity and concave points. Both smoothness and fractal dimension have the most notable cases of negative correlations, seen with radius, perimeter, and area in both cases, though the negative correlations are low at best.</p>
 </section>
 <section id="procedure" class="level2">
 <h2 class="anchored" data-anchor-id="procedure">Procedure</h2>
 <p><strong>Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below</strong></p>
 <section id="isolation-forests" class="level3">
 <h3 class="anchored" data-anchor-id="isolation-forests">Isolation Forests</h3>
-<p>Isolation forests work by…</p>
-<p>going through process of implementation…</p>
-</section>
-<section id="local-outlier" class="level3">
-<h3 class="anchored" data-anchor-id="local-outlier">Local Outlier</h3>
-<p>Isolation forests work by…</p>
-<p>going through process of implementation…</p>
-</section>
-<section id="one-class-svm" class="level3">
-<h3 class="anchored" data-anchor-id="one-class-svm">One Class SVM</h3>
+<blockquote class="blockquote">
+<p>Isolation Forests represent a novel approach in anomaly detection, focusing on isolating anomalies instead of identifying normal data patterns. The method constructs a ‘forest’ of random binary decision trees, based on the principle that anomalies are easier to isolate from the rest of the sample. In an Isolation Forest, each tree aims to isolate data points by randomly selecting a feature and a split value, with the path length—the number of splits needed to isolate a data point—being the key metric. Anomalies, being few and distinct, typically require fewer splits for isolation, which is reflected in their inverse relationship with the anomaly score. For constructing these trees, given a dataset <span class="math inline">\(X = \{x_1, \dots, x_n\}\)</span> where each <span class="math inline">\(x_i\)</span> is a point in a <span class="math inline">\((d)\)</span>-dimensional space, a subset <span class="math inline">\((X' \subset X)\)</span> is used. The trees are built by recursively partitioning <span class="math inline">\((X')\)</span> through random selection of an attribute $(q)$ and a split value $(p)$, resulting in a binary tree where each internal node represents a division based on <span class="math inline">\((q &lt; p)\)</span>. This process continues until a node either contains a single instance or all instances at the node are identical, effectively leveraging the trees’s capacity to progressively narrow down the space in which data points reside, making it highly effective for identifying anomalies that are rare and distinct.</p>
+</blockquote>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-5_a0003435c64f9536db113458f77ef95f">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("isotree")</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(isotree)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the data set into benign and malignant</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>benign_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(breast_cancer_data, diagnosis <span class="sc">==</span> <span class="st">'B'</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>malignant_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(breast_cancer_data, diagnosis <span class="sc">==</span> <span class="st">'M'</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the 'diagnosis' column for modeling</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>benign_data <span class="ot">&lt;-</span> benign_data[,<span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(benign_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>malignant_data <span class="ot">&lt;-</span> malignant_data[,<span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(malignant_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To to an isolation forest, we are first going to split the data into benign and malignant, this is because we are going to train the model for the benign tumors and then test it against the malignant tumors. Hypothetically this model should detect everything as an outlier.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-6_7b19fe96ca735f6c410189667bb44c04">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Train the model on benign data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">isolation.forest</span>(benign_data, <span class="at">ntrees=</span><span class="dv">100</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the model to malignant data]</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>malignant_scores <span class="ot">&lt;-</span> <span class="fu">predict</span>(model, malignant_data)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine outliers</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>outliers <span class="ot">&lt;-</span> malignant_scores <span class="sc">&gt;</span> <span class="fl">0.5</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the accuracy</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>true_positive <span class="ot">&lt;-</span> <span class="fu">sum</span>(outliers) </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>false_negative <span class="ot">&lt;-</span> <span class="fu">length</span>(outliers) <span class="sc">-</span> true_positive</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Accuracy</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> true_positive <span class="sc">/</span> <span class="fu">length</span>(outliers)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the results</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Number of true positives (malignant identified as outliers):"</span>, true_positive))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Number of true positives (malignant identified as outliers): 180"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Number of false negatives (malignant not identified as outliers):"</span>, false_negative))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Number of false negatives (malignant not identified as outliers): 32"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Accuracy:"</span>, accuracy))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Accuracy: 0.849056603773585"</code></pre>
+</div>
+</div>
+<p>The next thing we are going to do is use the isoforest library to create an isolation forest for the benign data. When we predict against the malignant data, we generate anomaly scores, the higher they are the more anomalous they are. Typically, we determine outliers at a value greater than 0.5 so we filter by that and then calculate the number of outliers (true-positives) and the number of false negatives (those that were determined as not outliers even though they should be). We can then calculate the accuracy of the model.</p>
+<p>The output from the isolation forest model indicates that it has correctly identified 180 malignant cases as outliers, which are referred to as true positives. This suggests that the model is effectively distinguishing between benign and malignant cases based on the patterns learned from the benign data it was trained on. However, the model has also yielded 32 false negatives, which are malignant cases that the model failed to flag as outliers. Overall, the model has achieved an accuracy of approximately 84.91%, which quantifies its ability to correctly identify malignant cases as outliers.</p>
+<p><strong>Visualization</strong></p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-7_a40a181475b6e10af240e8ae0a7e607b">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert scores to a data frame for ggplot</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>scores_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">score =</span> malignant_scores)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(scores_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq_along</span>(score), <span class="at">y =</span> malignant_scores)) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Anomaly Scores with Threshold"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Data Point"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Anomaly Score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As mentioned before, we generated anomaly scores for each of the points in the data, what we can do is plot it on a scatter plot. With a threshold of 0.5 we can see all the data above and below the points.</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-8_5e4cfdb505e58f30c1852e755009adab">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA on the data</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>pca_result <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(malignant_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)], <span class="at">scale =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the first two principal components and add anomaly scores</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>pca_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">PC1 =</span> pca_result<span class="sc">$</span>x[, <span class="dv">1</span>], <span class="at">PC2 =</span> pca_result<span class="sc">$</span>x[, <span class="dv">2</span>], <span class="at">Score =</span> malignant_scores)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating the scatter plot</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_data, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2, <span class="at">color =</span> malignant_scores)) <span class="sc">+</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_gradientn</span>(<span class="at">colors =</span> <span class="fu">brewer.pal</span>(<span class="dv">9</span>, <span class="st">"Reds"</span>)) <span class="sc">+</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"PCA Scatter Plot with Anomaly Scores"</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Principal Component 1"</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Principal Component 2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+
+</blockquote>
+<p>======= ### Local Outlier &gt;&gt;&gt;&gt;&gt;&gt;&gt; upstream/main</p>
+<p>Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.</p>
+<p>To begin implementation, it is ideal to install the <code>dbscan</code> package which will be used to calculate the LOF value:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-9_7199b7acfd8bf67f9643973ae607b4a5">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dbscan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It is also nice to look at the dimensions and a tibble of our dataset so we are familiar with it:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-10_7fdf84999ef64388cb30f0a4d71c35d3">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(breast_cancer_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 569  32</code></pre>
+</div>
+</div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-11_43bd6a0012fa2d9eb136aeffd52b2c92">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Tibble</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="sc">%&gt;%</span> <span class="fu">tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 569 × 32
+         id diagnosis radius_mean texture_mean perimeter_mean area_mean
+      &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;
+ 1   842302 M                18.0         10.4          123.      1001 
+ 2   842517 M                20.6         17.8          133.      1326 
+ 3 84300903 M                19.7         21.2          130       1203 
+ 4 84348301 M                11.4         20.4           77.6      386.
+ 5 84358402 M                20.3         14.3          135.      1297 
+ 6   843786 M                12.4         15.7           82.6      477.
+ 7   844359 M                18.2         20.0          120.      1040 
+ 8 84458202 M                13.7         20.8           90.2      578.
+ 9   844981 M                13           21.8           87.5      520.
+10 84501001 M                12.5         24.0           84.0      476.
+# ℹ 559 more rows
+# ℹ 26 more variables: smoothness_mean &lt;dbl&gt;, compactness_mean &lt;dbl&gt;,
+#   concavity_mean &lt;dbl&gt;, `concave points_mean` &lt;dbl&gt;, symmetry_mean &lt;dbl&gt;,
+#   fractal_dimension_mean &lt;dbl&gt;, radius_se &lt;dbl&gt;, texture_se &lt;dbl&gt;,
+#   perimeter_se &lt;dbl&gt;, area_se &lt;dbl&gt;, smoothness_se &lt;dbl&gt;,
+#   compactness_se &lt;dbl&gt;, concavity_se &lt;dbl&gt;, `concave points_se` &lt;dbl&gt;,
+#   symmetry_se &lt;dbl&gt;, fractal_dimension_se &lt;dbl&gt;, radius_worst &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>The first step to take is to create a dataframe of the patient ID and the <code>actual</code> diagnosis. This will be concatenated with the predicted diagnosis values later to determine the prediction quality of the model:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-12_8fd5cdcfe3da11cab1fc00acd4f6006c">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>actual_id_diagnosis <span class="ot">&lt;-</span> breast_cancer_data[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function <code>lof</code> saves a lot of time for us and allows us to quickly produce lof values for all 569 observations. Follow the code below to reproduce the LOF model:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-13_a3ea400901b4cea3cdffe7882b43535f">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Make data set as a dataframe without character variable for scaling</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>scaled_bc_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">scale</span>(breast_cancer_data[,<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Use LOF function on the 569 observations to produce ratio of density around that specific observation vs average density of all point around it.</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>lof_result <span class="ot">&lt;-</span> <span class="fu">lof</span>(scaled_bc_data)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust the threshold as needed</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="fl">1.25</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Create an object that displayed logical values for whether or not the predicted LOF value is greater than or less than the threshold parameter</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>outliers <span class="ot">&lt;-</span> lof_result <span class="sc">&gt;</span> threshold</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Run the code below to display a plot of the outliers flagged by the LOF model.</p>
+<p>Try and mess around with the <code>threshold</code> value using the code above.(hint: The LOF value is a ratio between the average density around a given point and the average density of the points around it!) Use the plot below to visualize the changes:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-14_cc11f80f80c68e3ca6b9a5ec08cc195f">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Visualize Outliers</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lof_result, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="fu">ifelse</span>(outliers, <span class="st">"red"</span>, <span class="st">"blue"</span>), </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"LOF Outlier Detection"</span>, <span class="at">xlab =</span> <span class="st">"Data Point"</span>, <span class="at">ylab =</span> <span class="st">"LOF Score"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Outlier"</span>, <span class="st">"Inlier"</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">19</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Talk with your classmates: How does increasing and decreasing the threshold value change the number of outliers?</p>
+<p>Use the code below to append the predicted outliers to a DataFrame of the actual outliers:</p>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-15_c86d8f325758dff339c338805da2091d">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Append the outlier results to the actual diagnosis of the data set</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>actual_id_diagnosis<span class="sc">$</span>pred_diag <span class="ot">&lt;-</span> outliers</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Prediction vs Actual Table</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>actual_id_diagnosis <span class="sc">%&gt;%</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(diagnosis, pred_diag) <span class="sc">%&gt;%</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         pred_diag
+diagnosis FALSE TRUE
+        B   306   51
+        M   167   45</code></pre>
+</div>
+</div>
+<p>Look at the outputted table. What do you notice?</p>
+<p>======= ### One Class SVM</p>
 <section id="libraries" class="level4">
 <h4 class="anchored" data-anchor-id="libraries">Libraries</h4>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-1_fdf03fae12d87f097f72fd1647d5803e">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytex)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NLP)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-16_62af6de19f299e938e7e35349815db2b">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytex)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NLP)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="pca-for-visualization" class="level4">
-<h4 class="anchored" data-anchor-id="pca-for-visualization">PCA For Visualization</h4>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD #### PCA For Visualization</p>
 <p>We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.</p>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-2_3d13a8b5efdcb108178b7ace7389ce9b">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vignette-anomaly-detection"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Data/bc_data_prepared.csv"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># let's first relabe our interest class into 1s and 0s</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diagnosis =</span> <span class="fu">ifelse</span>(diagnosis <span class="sc">==</span> <span class="st">'B'</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Separate predictors and response variable</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> breast_cancer_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(breast_cancer_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> breast_cancer_data<span class="sc">$</span>diagnosis</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>pca_result <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first two principal components</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>pca_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pca_result<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>pca_data<span class="sc">$</span>diagnosis <span class="ot">&lt;-</span> <span class="fu">factor</span>(y, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"B"</span>))               </span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using the first two principal components</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_data, <span class="fu">aes</span>(<span class="at">x =</span> PC2, <span class="at">y =</span> PC1, <span class="at">color =</span> diagnosis)) <span class="sc">+</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)) <span class="sc">+</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"PCA Scatterplot of Breast Cancer Data"</span>, <span class="at">x =</span> <span class="st">"Principal Component 1"</span>, <span class="at">y =</span> <span class="st">"Principal Component 2"</span>) <span class="sc">+</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-17_f36008e8d12d3934172c42c75adaf343">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># let's first relabe our interest class into 1s and 0s</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>breast_cancer_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diagnosis =</span> <span class="fu">ifelse</span>(diagnosis <span class="sc">==</span> <span class="st">'B'</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Separate predictors and response variable</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> breast_cancer_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(breast_cancer_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> breast_cancer_data<span class="sc">$</span>diagnosis</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>pca_result <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first two principal components</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>pca_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pca_result<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>pca_data<span class="sc">$</span>diagnosis <span class="ot">&lt;-</span> <span class="fu">factor</span>(y, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"B"</span>))               </span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using the first two principal components</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_data, <span class="fu">aes</span>(<span class="at">x =</span> PC2, <span class="at">y =</span> PC1, <span class="at">color =</span> diagnosis)) <span class="sc">+</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)) <span class="sc">+</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"PCA Scatterplot of Breast Cancer Data"</span>, <span class="at">x =</span> <span class="st">"Principal Component 1"</span>, <span class="at">y =</span> <span class="st">"Principal Component 2"</span>) <span class="sc">+</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We can clearly see that the two groups should be able to be classified with unsupervised learning methods. Our first method will be one class SVM.</p>
@@ -224,13 +436,13 @@ min_{r,c,\zeta} \text{ } r^2 + \frac{1}{vn} \sum_{i=1}^{n} \zeta_i \\\text{subje
 e^{(-\gamma\left|  u-v\right|^2)}
 \]</span></p>
 <p>Then we optimize to find the optimal margin for a linear boundary. The optimization problem is different than above but note that RBF will result to a equivalent solution. In order to prove this analytically we run a two class SVM on our PCA data to show how we can get a hypersphere with the RBF kernel. Below we train a svm model on our entire training data to see the result of our boundary.</p>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-3_449c6e98031674755b37144b6154216c">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>svm_model_PCA <span class="ot">&lt;-</span> <span class="fu">svm</span>(diagnosis <span class="sc">~</span> ., <span class="at">data =</span> pca_data,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kernel =</span> <span class="st">'radial'</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svm_model_PCA, pca_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-18_0025a9341d5cd5b9a3575d371abc8970">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>svm_model_PCA <span class="ot">&lt;-</span> <span class="fu">svm</span>(diagnosis <span class="sc">~</span> ., <span class="at">data =</span> pca_data,</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kernel =</span> <span class="st">'radial'</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svm_model_PCA, pca_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!<br>
@@ -248,21 +460,21 @@ e^{(-\gamma\left|  u-v\right|^2)}
 <h4 class="anchored" data-anchor-id="training-the-model">Training The Model</h4>
 <p>We will be using the e1071 package to implement the one class SVM kernel.</p>
 <p>The following chunk simply creates our variable of interest, diagnosis into a binary column. Then it partitions the data into the majority class and the testing set consisting of the Malignant class. We then build our model with default parameters.</p>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-4_ef83d7cda61261dfaf8bcef7f4ce32a1">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>testing_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">0</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>trainpredictors <span class="ot">&lt;-</span> training_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(training_data) <span class="sc">==</span><span class="st">"diagnosis"</span>)]</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>testpredictors <span class="ot">&lt;-</span> testing_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(testing_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>svm.model <span class="ot">&lt;-</span> <span class="fu">svm</span>(trainpredictors, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">type =</span> <span class="st">'one-classification'</span>, </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nu =</span> <span class="fl">0.10</span>, <span class="at">scale =</span> <span class="cn">TRUE</span>, <span class="at">kernel =</span> <span class="st">"radial"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svm.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-19_167ac165e6e3f01b8aee30160d736423">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>testing_data <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(diagnosis <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>trainpredictors <span class="ot">&lt;-</span> training_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(training_data) <span class="sc">==</span><span class="st">"diagnosis"</span>)]</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>testpredictors <span class="ot">&lt;-</span> testing_data[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(testing_data) <span class="sc">==</span> <span class="st">"diagnosis"</span>)]</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>svm.model <span class="ot">&lt;-</span> <span class="fu">svm</span>(trainpredictors, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">type =</span> <span class="st">'one-classification'</span>, </span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nu =</span> <span class="fl">0.10</span>, <span class="at">scale =</span> <span class="cn">TRUE</span>, <span class="at">kernel =</span> <span class="st">"radial"</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svm.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -286,55 +498,65 @@ Number of Classes: 1</code></pre>
 </div>
 <p>We see that the number of support vectors is 59. These are the vectors that are highly influential with creating our margin of separation.</p>
 <p>Run the code below to predict and build confusion matrices. We will also see the accuracy of each training and test set.</p>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-5_f55cf4f7986b5e547093bd42346face3">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>svm.predtrain <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, trainpredictors)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>svm.predtest <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, testpredictors)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>confTrain <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtrain, <span class="at">Reference =</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                     training_data<span class="sc">$</span>diagnosis)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>confTest <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtest, <span class="at">Reference =</span> </span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                    testing_data<span class="sc">$</span>diagnosis)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Training Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-20_ec1f3e2d5215474049d63b0f1f346dc6">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>svm.predtrain <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, trainpredictors)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>svm.predtest <span class="ot">&lt;-</span> <span class="fu">predict</span>(svm.model, testpredictors)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>confTrain <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtrain, <span class="at">Reference =</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                     training_data<span class="sc">$</span>diagnosis)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>confTest <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> svm.predtest, <span class="at">Reference =</span> </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>                    testing_data<span class="sc">$</span>diagnosis)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Training Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Confusion Matrix for Training Set:"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Reference
 Predicted   1
     FALSE  38
     TRUE  319</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Testing Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Confusion Matrix for Testing Set:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Confusion Matrix for Testing Set:"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Reference
 Predicted   0
     FALSE 198
     TRUE   14</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>accuracy_train <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtrain <span class="sc">==</span> training_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(training_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>accuracy_test <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtest <span class="sc">==</span> testing_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(testing_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Training Set: "</span>, accuracy_train, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>accuracy_train <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtrain <span class="sc">==</span> training_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(training_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>accuracy_test <span class="ot">&lt;-</span> <span class="fu">sum</span>(svm.predtest <span class="sc">==</span> testing_data<span class="sc">$</span>diagnosis) <span class="sc">/</span> <span class="fu">length</span>(testing_data<span class="sc">$</span>diagnosis) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Training Set: "</span>, accuracy_train, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Accuracy on Training Set:  89.35574 %</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Testing Set: "</span>, accuracy_test, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy on Testing Set: "</span>, accuracy_test, <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Accuracy on Testing Set:  93.39623 %</code></pre>
 </div>
 </div>
 <p>The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!</p>
-</section>
-</section>
-</section>
-<section id="additional-resources" class="level2">
-<h2 class="anchored" data-anchor-id="additional-resources">Additional Resources:</h2>
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<p>upstream/main ## Additional Resources:</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 <ul>
 <li><a href="https://builtin.com/machine-learning/anomaly-detection-algorithms">5 Anomaly Detection Algorithms to Know</a></li>
 <li><a href="https://arxiv.org/pdf/1911.08623.pdf">Deep Anomaly Detection with Deviation Networks</a></li>
@@ -343,6 +565,8 @@ Predicted   0
 <li><a href="https://www.r-bloggers.com/2023/03/one-class-svm/">One Class SVM</a></li>
 <li><a href="https://www.analyticsvidhya.com/blog/2022/06/one-class-classification-using-support-vector-machines/">One Class Classification Using Support Vector Machines</a></li>
 </ul>
+</section>
+</section>
 </section>
 
 </main>
