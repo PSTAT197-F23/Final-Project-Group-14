@@ -139,7 +139,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-description" class="level2">
 <h2 class="anchored" data-anchor-id="data-description">Data description</h2>
-<p>The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image. &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD =======</p>
+<p>The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.</p>
 <div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-3_975b2311fe4cd40ec1ee0efb4917b897">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count plot of each diagnosis class</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>bc_count <span class="ot">&lt;-</span> breast_cancer_data <span class="sc">%&gt;%</span></span>
@@ -168,8 +168,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="procedure" class="level2">
 <h2 class="anchored" data-anchor-id="procedure">Procedure</h2>
 <p><strong>Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below</strong></p>
-<section id="isolation-forests" class="level3">
-<h3 class="anchored" data-anchor-id="isolation-forests">Isolation Forests</h3>
+</section>
+<section id="isolation-forests" class="level2">
+<h2 class="anchored" data-anchor-id="isolation-forests">Isolation Forests</h2>
 <blockquote class="blockquote">
 <p>Isolation Forests represent a novel approach in anomaly detection, focusing on isolating anomalies instead of identifying normal data patterns. The method constructs a ‘forest’ of random binary decision trees, based on the principle that anomalies are easier to isolate from the rest of the sample. In an Isolation Forest, each tree aims to isolate data points by randomly selecting a feature and a split value, with the path length—the number of splits needed to isolate a data point—being the key metric. Anomalies, being few and distinct, typically require fewer splits for isolation, which is reflected in their inverse relationship with the anomaly score. For constructing these trees, given a dataset <span class="math inline">\(X = \{x_1, \dots, x_n\}\)</span> where each <span class="math inline">\(x_i\)</span> is a point in a <span class="math inline">\((d)\)</span>-dimensional space, a subset <span class="math inline">\((X' \subset X)\)</span> is used. The trees are built by recursively partitioning <span class="math inline">\((X')\)</span> through random selection of an attribute $(q)$ and a split value $(p)$, resulting in a binary tree where each internal node represents a division based on <span class="math inline">\((q &lt; p)\)</span>. This process continues until a node either contains a single instance or all instances at the node are identical, effectively leveraging the trees’s capacity to progressively narrow down the space in which data points reside, making it highly effective for identifying anomalies that are rare and distinct.</p>
 </blockquote>
@@ -260,10 +261,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<blockquote class="blockquote">
-
-</blockquote>
-<p>======= ### Local Outlier</p>
+<p>##Local Outlier</p>
 <p>Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.</p>
 <p>To begin implementation, it is ideal to install the <code>dbscan</code> package which will be used to calculate the LOF value:</p>
 <div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-9_7199b7acfd8bf67f9643973ae607b4a5">
@@ -347,19 +345,21 @@ diagnosis FALSE TRUE
 </div>
 </div>
 <p>Look at the outputted table. What do you notice?</p>
-<p>======= ### One Class SVM</p>
-<section id="libraries" class="level4">
-<h4 class="anchored" data-anchor-id="libraries">Libraries</h4>
-<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-16_62af6de19f299e938e7e35349815db2b">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytex)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NLP)</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="one-class-svm" class="level2">
+<h2 class="anchored" data-anchor-id="one-class-svm">One Class SVM</h2>
+<div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-16_0c9721998be525c934f63467cca093ba">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install libraries for One-class SVM</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytex)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NLP)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD #### PCA For Visualization</p>
+<section id="pca-for-visualization" class="level4">
+<h4 class="anchored" data-anchor-id="pca-for-visualization">PCA For Visualization</h4>
 <p>We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.</p>
 <div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-17_f36008e8d12d3934172c42c75adaf343">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># let's first relabe our interest class into 1s and 0s</span></span>
@@ -433,7 +433,6 @@ e^{(-\gamma\left|  u-v\right|^2)}
 <p>We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!<br>
 <br>
 </p>
-<hr>
 </section>
 <section id="outline" class="level4">
 <h4 class="anchored" data-anchor-id="outline">Outline</h4>
@@ -527,7 +526,6 @@ Predicted   0
 </div>
 </div>
 <p>The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!</p>
-</section>
 </section>
 </section>
 <section id="additional-resources" class="level2">
