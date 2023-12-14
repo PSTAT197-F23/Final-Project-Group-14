@@ -2,7 +2,8 @@
 
 Vignette on implementing outlier and anomaly detection using breast cancer detection data; created as a class project for PSTAT197A in Fall 2023.
 
-**Contributors:** Kyle Wu, Jimmy Dysart, Ryan Sevilla, 
+<<<<<<< HEAD
+**Contributors:** Kyle Wu, Jimmy Dysart, Azfal Peermohammed, Ryan Sevilla, Navneet Rajagopal
 
 ## Executive Summary
 
