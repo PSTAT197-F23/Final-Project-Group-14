@@ -27,7 +27,6 @@ setwd("~/Documents/UCSB/2023-2024/Fall 2023/PSTAT 197/Projects/Final Project/vig
 breast_cancer_data <- read_csv("bc_data_prepared.csv")
 ```
 
-
 ## Executive summary
 
 As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models.
@@ -56,7 +55,6 @@ bc_count <- breast_cancer_data %>%
 bc_count
 ```
 
-
 Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.
 
 Though there are 30 numeric features in total, only ten unique features are computed from each cell nucleus: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. The mean, standard error, and lowest value for each of the ten unique features are recorded.
@@ -67,10 +65,6 @@ corrplot(corr = cor(breast_cancer_data[-c(1,2)]))
 ```
 
 Most features tend to have positive correlations with one another, typically ranging from negligible to moderate. Of the unique features, radius, perimeter, and area tend to have very high positive correlations with each other, which makes sense because the radius is used to calculate the perimeter and area. Concavity and concave points also share a very high positive correlation with each other, which makes sense because concave points is similar to concavity but measures the number of concavities instead of the magnitude. The concave points feature also has a high positive correlation with radius, perimeter, and area, and compactness has a high positive correlation with concavity and concave points. Both smoothness and fractal dimension have the most notable cases of negative correlations, seen with radius, perimeter, and area in both cases, though the negative correlations are low at best.
-
-## Procedure
-
-**Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below**
 
 ## Isolation Forests
 
@@ -160,7 +154,6 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = malignant_scores)) +
        y = "Principal Component 2")
 ```
 
-
 ##Local Outlier
 
 Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.
@@ -232,7 +225,6 @@ actual_id_diagnosis %>%
 Look at the outputted table. What do you notice?
 
 ## One Class SVM
-
 
 ```{r}
 # Install libraries for One-class SVM
@@ -326,7 +318,6 @@ plot(svm_model_PCA, pca_data)
 We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!\
 \
 
-
 #### Outline
 
 Step 1.) Train our model on the majority class (Benign Tumors)
@@ -388,7 +379,6 @@ cat("Accuracy on Testing Set: ", accuracy_test, "%\n")
 ```
 
 The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!
-
 
 ## Additional Resources:
 
