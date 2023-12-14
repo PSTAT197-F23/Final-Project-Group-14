@@ -2,12 +2,11 @@
 
 Vignette on implementing outlier and anomaly detection using breast cancer detection data; created as a class project for PSTAT197A in Fall 2023.
 
-<<<<<<< HEAD
 **Contributors:** Kyle Wu, Jimmy Dysart, Azfal Peermohammed, Ryan Sevilla, Navneet Rajagopal
 
 ## Executive Summary
 
-As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models.
+As the names suggest, outlier and anomaly detection are methods meant to identify data points that appear to fall outside the normal range. These anomalous observations are often rare and present patterns not present for standard data points. Much like in regular machine learning models, anomaly detection methods fall into 3 main categories; supervised, unsupervised, and semi-supervised models. The vignette here and supporting documents will demonstrate how to utilize anomaly detection methods.
 
 ## Repository Content
 

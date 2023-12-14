@@ -43,8 +43,6 @@ In this vignette, we will demonstrate the efficacy of a number of different mode
 ## Data description
 
 The data set in this vignette has been drawn from the Diagnostic Wisconsin Breast Cancer Database and includes a list of 30 features from 569 patients computed from a digitized image of a fine needle aspirate (FNA) of breast mass. The features describe the characteristics of the nuclei present in the image.
-<<<<<<< HEAD
-=======
 
 ```{r}
 # Count plot of each diagnosis class
@@ -74,7 +72,7 @@ Most features tend to have positive correlations with one another, typically ran
 
 **Lightly describe how we cleaned the data and made sure it was ready to be used for our methods below**
 
-### Isolation Forests
+## Isolation Forests
 
 > Isolation Forests represent a novel approach in anomaly detection, focusing on isolating anomalies instead of identifying normal data patterns. The method constructs a 'forest' of random binary decision trees, based on the principle that anomalies are easier to isolate from the rest of the sample. In an Isolation Forest, each tree aims to isolate data points by randomly selecting a feature and a split value, with the path length---the number of splits needed to isolate a data point---being the key metric. Anomalies, being few and distinct, typically require fewer splits for isolation, which is reflected in their inverse relationship with the anomaly score. For constructing these trees, given a dataset $X = \{x_1, \dots, x_n\}$ where each $x_i$ is a point in a $(d)$-dimensional space, a subset $(X' \subset X)$ is used. The trees are built by recursively partitioning $(X')$ through random selection of an attribute \$(q)\$ and a split value \$(p)\$, resulting in a binary tree where each internal node represents a division based on $(q < p)$. This process continues until a node either contains a single instance or all instances at the node are identical, effectively leveraging the trees's capacity to progressively narrow down the space in which data points reside, making it highly effective for identifying anomalies that are rare and distinct.
 
@@ -162,11 +160,8 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = malignant_scores)) +
        y = "Principal Component 2")
 ```
 
-> 
 
-
-=======
-### Local Outlier
+##Local Outlier
 
 Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.
 
@@ -236,12 +231,11 @@ actual_id_diagnosis %>%
 
 Look at the outputted table. What do you notice?
 
-=======
-### One Class SVM
+## One Class SVM
 
-#### Libraries
 
 ```{r}
+# Install libraries for One-class SVM
 library(tinytex)
 library(readr)
 library(tidyverse)
@@ -252,7 +246,6 @@ library(tm)
 
 ```
 
-<<<<<<< HEAD
 #### PCA For Visualization
 
 We will use the common algorithm of PCA in order to visualize the separation of the two clusters. We Hope to see that there is indeed a visual difference between the Malignant and Benign class of tumors.
@@ -333,7 +326,6 @@ plot(svm_model_PCA, pca_data)
 We see that the radial basis function is indeed able to seperate the two classes pretty succesfully. The boundary does resemble a ellipsoid shape and in higher dimensions this can certainly be a form of a hypersphere!\
 \
 
-------------------------------------------------------------------------
 
 #### Outline
 

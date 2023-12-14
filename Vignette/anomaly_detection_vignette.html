@@ -154,21 +154,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="anomaly_detection_vignette_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>upstream/main</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
 <p>Observations in the data set are classified into 2 categories, benign or malignant. In this data set, 357 of the patients received a benign diagnosis, while 212 received a malignant diagnosis.</p>
 <p>Though there are 30 numeric features in total, only ten unique features are computed from each cell nucleus: radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension. The mean, standard error, and lowest value for each of the ten unique features are recorded.</p>
 <div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-4_35b7ab2f93c211254c369a3a74b92e08">
@@ -278,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 
 </blockquote>
-<p>======= ### Local Outlier &gt;&gt;&gt;&gt;&gt;&gt;&gt; upstream/main</p>
+<p>======= ### Local Outlier</p>
 <p>Local Outlier Factor (LOF) works by identifying outliers through examining the local density (average distance to k nearest neighbors) of each data point and comparing it to the density of its neighbors. Outliers are points that exceed an arbitrary threshold and have lower local density than their neighbors, indicating that they are in less dense regions of the data.</p>
 <p>To begin implementation, it is ideal to install the <code>dbscan</code> package which will be used to calculate the LOF value:</p>
 <div class="cell" data-hash="anomaly_detection_vignette_cache/html/unnamed-chunk-9_7199b7acfd8bf67f9643973ae607b4a5">
@@ -542,21 +527,11 @@ Predicted   0
 </div>
 </div>
 <p>The results on the testing set turned out to be extremely good. We see that the model was able to classify 94% Percent of the data correctly when we pass in the data of just malignant. We can confirm that our model is verified since it did not just predict that every observation is Malignant. Since there is some error we can be assured that the model was able to capture the distribution of Benign tumors!</p>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>upstream/main ## Additional Resources:</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+</section>
+</section>
+</section>
+<section id="additional-resources" class="level2">
+<h2 class="anchored" data-anchor-id="additional-resources">Additional Resources:</h2>
 <ul>
 <li><a href="https://builtin.com/machine-learning/anomaly-detection-algorithms">5 Anomaly Detection Algorithms to Know</a></li>
 <li><a href="https://arxiv.org/pdf/1911.08623.pdf">Deep Anomaly Detection with Deviation Networks</a></li>
@@ -565,8 +540,6 @@ Predicted   0
 <li><a href="https://www.r-bloggers.com/2023/03/one-class-svm/">One Class SVM</a></li>
 <li><a href="https://www.analyticsvidhya.com/blog/2022/06/one-class-classification-using-support-vector-machines/">One Class Classification Using Support Vector Machines</a></li>
 </ul>
-</section>
-</section>
 </section>
 
 </main>
